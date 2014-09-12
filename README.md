@@ -1,7 +1,7 @@
-Author:Benjamin Bigot
-Contact: benjbigot@gmail.com
-Creation: 2013
-Last changes: 2014
+Author:Benjamin Bigot  
+Contact: benjbigot@gmail.com  
+Creation: 2013  
+Last changes: 2014  
 
 
 webNews_Crawler  
