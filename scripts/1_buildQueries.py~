@@ -1,0 +1,95 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+
+
+import sys, os, argparse, re
+sys.path.append("searchEngines/")
+import LIBERATION
+
+#~ use strict;
+#~ use warnings;
+#~ use Getopt::Long;
+#~ use Cwd;
+#~ use Pod::Usage;
+#~ push(@INC, 'searchEngines');
+
+# ==== specific rules for query strings edition === #
+#~ require 'ALVINET.pm';
+#~ require 'VOXALEAD.pm';
+#~ require 'LIBERATION.pm';
+
+#sub write2ListFile{
+#	my ($f, @content) = @_;
+#        open(F ,">> $f") or die "unable to open $f\n";
+#	foreach(@content){
+#		print F "$_\n";
+#	}
+#        close(F);
+#}1;
+
+
+
+if __name__=='__main__':
+	parser = argparse.ArgumentParser(description='Get list of links')
+	parser.add_argument('-i', '--input' , dest='input', help='Speaker Diarization input file (mdtm)', required=True )
+	parser.add_argument('-o', '--output', dest='output', help='wav files Dir', required=False)
+	parser.add_argument('-d', '--done'  , dest='listDone', help='url deja traitées', required=False)
+	args = parser.parse_args()
+
+	
+	rules = list()
+	if os.path.exists(args.input):
+		f = open(args.input, 'r')
+		fContent = f.readlines()
+		f.close()
+		
+		for line in fContent : 
+			if re.match('^<query ', line) :
+				print line
+				queryId 	= line.rstrip().split(' id="')[1].split('"')[0]
+			
+				source  	= line.rstrip().split(' source="')[1].split('"')[0]
+				pattern 	= line.rstrip().split(' pattern="')[1].split('"')[0]
+				startY  	= line.rstrip().split(' startY="')[1].split('"')[0]
+				startM  	= line.rstrip().split(' startM="')[1].split('"')[0]
+				startD  	= line.rstrip().split(' startD="')[1].split('"')[0]
+				endY  		= line.rstrip().split(' endY="')[1].split('"')[0]
+				endM  		= line.rstrip().split(' endM="')[1].split('"')[0]
+				endD  		= line.rstrip().split(' endD="')[1].split('"')[0]
+				nbLink  	= line.rstrip().split(' nbLink="')[1].split('"')[0]
+				key  		= line.rstrip().split(' key="')[1].split('"')[0]
+			
+			
+				currentQuery =pattern + ' ' + startD+'-'+startM+'-'+startY+'-'+endD+'-'+endM+'-'+endY + ' ' + nbLink + ' ' + key
+				
+				# if verbose 2
+				#print('query ' + queryId +':' + currentQuery + '\n')
+
+
+				if source == 'alvinet' :
+					print "alvinet"
+					#urlList = &ALVINET::produceAddressURL(currentQuery);
+					#foreach (@list){print "$_\n";}
+					#~ &write2ListFile($outputFile, @list);
+			
+				elif source == 'liberation':
+					urlList = LIBERATION.produceAddressURL(currentQuery)
+					for link in urlList :
+						# si le lien n'est pas encore traité 
+						LIBERATION.cleanResultFile(link)
+						# gestion de la sortie
+					
+
+
+					#exit()
+					#foreach (@list){print "$_\n";}
+					#~ exit;
+					#~ &write2ListFile($outputFile, @list);
+			
+			
+
+	else:
+		print('check input file it is not optional')
+		
+

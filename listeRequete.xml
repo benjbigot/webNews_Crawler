@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<querySeq>
+<query id="0" source="liberation" pattern="barack+obama" startY="2012" startM="01" startD="30" endY="2012" endM="01" endD="31" nbLink="400" key="BARACK_OBAMA"></query>
+<query id="1" source="liberation" pattern="barack+obama" startY="2012" startM="02" startD="13" endY="2012" endM="02" endD="14" nbLink="400" key="BARACK_OBAMA"></query>
+<query id="2" source="liberation" pattern="bill+clinton" startY="2012" startM="01" startD="30" endY="2012" endM="01" endD="31" nbLink="400" key="BILL_CLINTON"></query>
+<query id="3" source="liberation" pattern="bill+clinton" startY="2012" startM="02" startD="13" endY="2012" endM="02" endD="14" nbLink="400" key="BILL_CLINTON"></query>
+</querySeq>

@@ -1,0 +1,124 @@
+#!/usr/bin/perl -w
+package ELWATAN;
+
+use HTML::TreeBuilder::XPath;
+use HTML::Parser;
+use HTML::Headers;
+use HTTP:Request;
+use LWP;
+use LWP::UserAgent;
+use Data::Dumper;
+
+
+
+sub extractArticle{
+        my ($link) = @_ ;
+        my $returnedText = '' ;
+
+	# ------------------------ #
+
+	my $h = new HTTP::Headers
+	#my $URI = 'http://www.elwatan.com';
+	my $URI = $link;
+	my $user = 'benjbigot@gmail.com';
+	my $pass = 'benbigot';
+
+	#Content_Base => 'http://www.elwatan.com';
+	#$h->authorization_basic('benjbigot@gmail.com', 'benbigot'); 
+	#my $request = HTTP::Request->new( 'GET', 'http://www.elwatan.com' , $h ) ;
+	#my $request = HTTP::Request->new( 'POST', 'http://www.elwatan.com' , $h ) ;
+	#my $response = $ua->get($link);
+
+
+	my $ua = LWP::UserAgent->new();
+	$ua->agent("USER/AGENT/IDENTIFICATION");
+	my $request = HTTP::Request->new(GET => $URI);
+
+	# authenticate
+	$request->authorization_basic($user, $pass);
+
+	# except response
+	my $response = $ua->request($request);
+
+	# get content of response
+	#my $content = $response->content();
+
+	#my $response = $ua->get($link);
+	#my $response = $ua->get($request);
+
+	if ($response->is_success){
+		#--- URL is not 404 -> now checked if it is a redirection or not ---#
+		my $content = $response->content;
+		my $tree = HTML::TreeBuilder::XPath->new;
+		$tree->parse_content($content);
+
+		#my $isRedirected = $tree->findnodes_as_string(q{/html/head/title});
+		my $isRedirected = $tree->findvalue(q{/html/head/title});
+		print "checked Title = $isRedirected \n";
+
+
+		# --- if redirected --- #
+	
+		if ($isRedirected eq 'Advertisement'){
+			print " page redirected to " ;
+			my $newLink  = $tree->findnodes_as_string(q{/html/head/body/a/href/});
+			print " $newLink \n";
+			$response = $ua->get($newLink) ;
+			if ($response->is_success){
+
+				# --- redirected and no 404 error ---- #
+				
+				$content = $response->content;
+				$tree->parse_content($content);
+			}
+			else{
+				print "but unfortunately this new url is not valid\n";
+				return $returnedText;
+			}
+		}
+		else{
+			print "page not redirected\n";	
+		}
+
+		
+		# ---- after all now we can extract the text ----- # 
+		for  my $result ( $tree->findnodes(q{/html/body})){
+	                $returnedText = $result->findvalue(q{//div[@class="texte"]});
+                }
+
+		if ( $returnedText eq ''){
+			print "empty string\n";
+			for  my $result ( $tree->findnodes(q{/html/body})){
+	                	$returnedText = $result->findvalue(q{//div[@class="texte"]}); # lock
+	                }
+		}
+		if ( $returnedText eq ''){
+			print "empty string\n";
+			for  my $result ( $tree->findnodes(q{/html/body})){
+	                	$returnedText = $result->findvalue(q{//div[@id="texte"]}); # lock
+	                }
+		}
+		if ( $returnedText eq ''){
+			print "empty string\n";
+			for  my $result ( $tree->findnodes(q{/html/body})){
+	                	$returnedText = $result->findvalue(q{//div[@class="article-headerintro"]/h2});
+	                }
+		}
+		if ( $returnedText eq ''){
+			print "empty string\n";
+			for  my $result ( $tree->findnodes(q{/html/body})){
+	                	$returnedText = $result->findvalue(q{//div[@class="edition-main-text"]});
+	                }
+		}
+		#print "$returnedText\n";
+		return $returnedText ;
+ 
+	
+	
+
+	}	
+	else{  
+		print "". $response->status_line . "\n";
+	}
+}1;
+
